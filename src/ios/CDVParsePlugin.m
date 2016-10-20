@@ -72,6 +72,13 @@
     [currentInstallation saveInBackground];
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        
+           }
+      @catch (NSException *exception) {
+      
+      UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"" message: [NSString stringWithFormat: @"Exception in subscribe is %@ ", exception] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+       [alert show];
+      }
 }
 
 - (void)unsubscribe: (CDVInvokedUrlCommand *)command
