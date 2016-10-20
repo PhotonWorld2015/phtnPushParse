@@ -47,6 +47,7 @@
 
 - (void)subscribe: (CDVInvokedUrlCommand *)command
 {
+    @try {
     // Not sure if this is necessary
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
         UIUserNotificationSettings *settings =
@@ -87,6 +88,7 @@
 -(void)getnotifications:(CDVInvokedUrlCommand *)command
 
 {
+    @try {
     NSUserDefaults *usserde=[NSUserDefaults standardUserDefaults];
     NSArray *ar=[usserde valueForKey:@"pushMessage"];
     
@@ -100,8 +102,8 @@
         NSString *jsonString= [[NSString alloc] initWithBytes:[jsonData bytes] length:[jsonData length] encoding:NSUTF8StringEncoding];
         [finalArray addObject:jsonString];
     }
-    
-    
+      
+  
    // NSData *json = [NSJSONSerialization dataWithJSONObject:array options:0 error:nil];
     
     //back
@@ -111,11 +113,19 @@
    CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:finalArray];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        
+          }
+      @catch (NSException *exception) {
+      
+      UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"" message: [NSString stringWithFormat: @"Exception in getnotifications is %@ ", exception] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+       [alert show];
+      }
 }
 
 
 -(void)updateReadmessage:(CDVInvokedUrlCommand *)command
 {
+    @try {
     NSUserDefaults *usserde=[NSUserDefaults standardUserDefaults];
     NSArray *ar=[usserde valueForKey:@"pushMessage"];
     
@@ -140,6 +150,13 @@
     CDVPluginResult* pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        
+          }
+      @catch (NSException *exception) {
+      
+      UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"" message: [NSString stringWithFormat: @"Exception in updateReadmessage is %@ ", exception] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+       [alert show];
+      }
 }
 @end
 
@@ -187,11 +204,13 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
 - (void)swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
+    
+    @try {
     [self swizzled_application:application didReceiveRemoteNotification:userInfo];
     [PFPush handlePush:userInfo];
     NSDictionary *apsInfo = [userInfo objectForKey:@"aps"];
     NSString *pushMessage = [apsInfo objectForKey:@"alert"];
-    NSString *navigatepath =[userInfo objectForKey:@"navigate"];
+    NSString *navigatepath = ([userInfo objectForKey:@"navigate"]) ? [userInfo objectForKey:@"navigate"] : @"";
     if(pushMessage && pushMessage.length>0)
     {
         NSUserDefaults *userdefault=[NSUserDefaults standardUserDefaults];
@@ -227,6 +246,14 @@ void MethodSwizzle(Class c, SEL originalSelector) {
         [userdefault setValue:ar forKey:@"pushMessage"];
         [userdefault synchronize];
     }
+        
+            }
+      @catch (NSException *exception) {
+      
+      UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"" message: [NSString stringWithFormat: @"Exception in swizzled_application is %@ ", exception] delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil];
+       [alert show];
+          
+      }
 }
 -(void)applicationDidBecomeActive:(UIApplication *)application
 {
